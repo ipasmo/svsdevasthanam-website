@@ -1,0 +1,221 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  SUPER_ADMIN
+  CONTENT_EDITOR
+  FINANCE_ADMIN
+}
+
+enum PageStatus {
+  ACTIVE
+  DISABLED
+  DRAFT
+  SCHEDULED
+}
+
+enum DonationStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PoojaType {
+  DAILY
+  WEEKLY
+  SPECIAL
+}
+
+enum DayType {
+  ALL
+  WEEKEND
+  WEEKDAY
+}
+
+// ─── Models ─────────────────────────────────────────────────────────────────
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  password     String
+  role         UserRole  @default(CONTENT_EDITOR)
+  isActive     Boolean   @default(true)
+  refreshToken String?
+  lastLogin    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([email])
+}
+
+model Page {
+  id           String      @id @default(uuid())
+  slug         String      @unique
+  status       PageStatus  @default(ACTIVE)
+  scheduledAt  DateTime?
+  translations PageTranslation[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([slug])
+}
+
+model PageTranslation {
+  id        String   @id @default(uuid())
+  pageId    String
+  locale    String   // "en" | "te" | "hi"
+  title     String
+  content   String   @db.Text
+  metaTitle String?
+  metaDesc  String?
+  page      Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([pageId, locale])
+}
+
+model Deity {
+  id           String   @id @default(uuid())
+  slug         String   @unique
+  nameEn       String
+  nameTe       String?
+  nameHi       String?
+  descriptionEn String   @db.Text
+  descriptionTe String?  @db.Text
+  descriptionHi String?  @db.Text
+  significance  String?  @db.Text
+  imageUrl     String?
+  orderIndex   Int      @default(0)
+  isActive     Boolean  @default(true)
+  rituals      Json?    // string[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([slug])
+}
+
+model GalleryCategory {
+  id       String         @id @default(uuid())
+  slug     String         @unique
+  label    String
+  images   GalleryImage[]
+}
+
+model GalleryImage {
+  id          String          @id @default(uuid())
+  s3Key       String
+  url         String
+  caption     String?
+  altText     String?
+  categoryId  String?
+  category    GalleryCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  isActive    Boolean         @default(true)
+  sortOrder   Int             @default(0)
+  uploadedBy  String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model Video {
+  id          String   @id @default(uuid())
+  title       String
+  youtubeId   String   @unique
+  description String?  @db.Text
+  isLive      Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Event {
+  id          String    @id @default(uuid())
+  titleEn     String
+  titleTe     String?
+  titleHi     String?
+  descriptionEn String?  @db.Text
+  category    String
+  startDate   DateTime
+  endDate     DateTime?
+  imageUrl    String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Announcement {
+  id          String    @id @default(uuid())
+  titleEn     String
+  titleTe     String?
+  titleHi     String?
+  isImportant Boolean   @default(false)
+  isActive    Boolean   @default(true)
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model TempleTiming {
+  id         String   @id @default(uuid())
+  activity   String
+  activityTe String?
+  startTime  String   // "05:00 AM"
+  endTime    String?
+  dayType    DayType  @default(ALL)
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Pooja {
+  id           String    @id @default(uuid())
+  nameEn       String
+  nameTe       String?
+  nameHi       String?
+  descriptionEn String?  @db.Text
+  type         PoojaType @default(DAILY)
+  timeEn       String?
+  cost         Float?
+  notes        String?
+  isActive     Boolean   @default(true)
+  sortOrder    Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Donation {
+  id              String         @id @default(uuid())
+  donorName       String
+  donorEmail      String
+  donorPhone      String
+  panCard         String?
+  amount          Float
+  currency        String         @default("INR")
+  purpose         String
+  message         String?
+  status          DonationStatus @default(PENDING)
+  razorpayOrderId String?        @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+  receiptSent     Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([donorEmail])
+  @@index([razorpayOrderId])
+}

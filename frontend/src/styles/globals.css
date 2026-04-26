@@ -1,0 +1,227 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Noto+Sans+Telugu:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── CSS Variables ────────────────────────────────────────────────────────── */
+:root {
+  --color-saffron: #fb9c1b;
+  --color-rust: #c83a00;
+  --color-golden: #ffca32;
+  --color-teal: #11ad99;
+  --color-offwhite: #f7f6e5;
+
+  --font-cinzel: "Cinzel", serif;
+  --font-playfair: "Playfair Display", serif;
+  --font-noto: "Noto Sans", sans-serif;
+  --font-poppins: "Poppins", sans-serif;
+
+  --navbar-height: 72px;
+  --announcement-bar-height: 40px;
+}
+
+/* ─── Base Styles ──────────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-feature-settings: "kern" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-offwhite text-gray-800 font-noto;
+    min-height: 100dvh;
+  }
+
+  /* Telugu font override for te locale */
+  [lang="te"] body,
+  [lang="te"] *,
+  .lang-te {
+    font-family: "Noto Sans Telugu", "Noto Sans", sans-serif;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-cinzel;
+  }
+
+  h4,
+  h5,
+  h6 {
+    @apply font-playfair;
+  }
+
+  /* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-amber-50;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-saffron-400 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-saffron-500;
+  }
+
+  /* ─── Selection ──────────────────────────────────────────────────────────── */
+  ::selection {
+    background-color: #fb9c1b33;
+    color: #c83a00;
+  }
+}
+
+/* ─── Component Styles ─────────────────────────────────────────────────────── */
+@layer components {
+  /* ─── Temple Button ──────────────────────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full
+      bg-saffron text-white font-poppins font-semibold text-sm
+      hover:bg-saffron-600 active:scale-95
+      transition-all duration-200 shadow-md hover:shadow-lg
+      focus:outline-none focus:ring-2 focus:ring-saffron-400 focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full
+      border-2 border-saffron text-saffron font-poppins font-semibold text-sm
+      hover:bg-saffron hover:text-white active:scale-95
+      transition-all duration-200
+      focus:outline-none focus:ring-2 focus:ring-saffron-400 focus:ring-offset-2;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+      text-gray-600 hover:text-saffron hover:bg-saffron-50
+      font-poppins font-medium text-sm transition-all duration-150
+      focus:outline-none focus:ring-2 focus:ring-saffron-400;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
+      bg-red-500 text-white font-poppins font-medium text-sm
+      hover:bg-red-600 active:scale-95 transition-all duration-150;
+  }
+
+  /* ─── Section Heading ────────────────────────────────────────────────────── */
+  .section-heading {
+    @apply text-3xl md:text-4xl font-cinzel font-bold text-rust text-center;
+  }
+
+  .section-subheading {
+    @apply text-lg font-noto text-gray-500 text-center mt-2;
+  }
+
+  .section-divider {
+    @apply w-24 h-1 bg-saffron mx-auto rounded-full my-4;
+  }
+
+  /* ─── Card ───────────────────────────────────────────────────────────────── */
+  .temple-card {
+    @apply bg-white rounded-2xl overflow-hidden shadow-temple-card
+      hover:shadow-lg hover:-translate-y-1 transition-all duration-300;
+  }
+
+  /* ─── Badge ──────────────────────────────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold font-poppins;
+  }
+
+  .badge-active {
+    @apply badge bg-green-100 text-green-700;
+  }
+
+  .badge-disabled {
+    @apply badge bg-red-100 text-red-700;
+  }
+
+  .badge-draft {
+    @apply badge bg-yellow-100 text-yellow-700;
+  }
+
+  .badge-scheduled {
+    @apply badge bg-blue-100 text-blue-700;
+  }
+
+  /* ─── Form ───────────────────────────────────────────────────────────────── */
+  .form-label {
+    @apply block text-sm font-semibold text-gray-700 mb-1 font-poppins;
+  }
+
+  .form-input {
+    @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm
+      placeholder:text-gray-400 bg-white
+      focus:outline-none focus:ring-2 focus:ring-saffron-400 focus:border-transparent
+      transition-colors duration-150;
+  }
+
+  .form-select {
+    @apply form-input cursor-pointer;
+  }
+
+  .form-textarea {
+    @apply form-input resize-y min-h-[120px];
+  }
+
+  .form-error {
+    @apply text-xs text-red-500 mt-1 font-poppins;
+  }
+
+  /* ─── Admin Sidebar ──────────────────────────────────────────────────────── */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg
+      text-gray-600 hover:text-saffron hover:bg-saffron-50
+      font-poppins font-medium text-sm transition-all duration-150;
+  }
+
+  .sidebar-link-active {
+    @apply sidebar-link bg-saffron-50 text-saffron border-l-2 border-saffron;
+  }
+
+  /* ─── Temple Ornament ────────────────────────────────────────────────────── */
+  .om-divider {
+    @apply flex items-center gap-4 my-6;
+  }
+
+  .om-divider::before,
+  .om-divider::after {
+    @apply content-[''] flex-1 h-px bg-gradient-to-r from-transparent via-golden to-transparent;
+  }
+}
+
+/* ─── Utility Styles ───────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-gradient-temple {
+    @apply bg-clip-text text-transparent bg-temple-gradient;
+  }
+
+  .text-gradient-golden {
+    @apply bg-clip-text text-transparent bg-golden-gradient;
+  }
+
+  .bg-sacred {
+    background-color: var(--color-offwhite);
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L35 20 L50 20 L38 30 L43 45 L30 35 L17 45 L22 30 L10 20 L25 20 Z' fill='none' stroke='%23FB9C1B' stroke-width='0.3' opacity='0.15'/%3E%3C/svg%3E");
+  }
+
+  .clip-hero {
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+  }
+
+  .glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20;
+  }
+
+  .animate-in {
+    animation: fadeIn 0.6s ease-in-out;
+  }
+}
