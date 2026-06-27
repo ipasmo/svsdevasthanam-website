@@ -58,23 +58,23 @@ export function Navbar() {
       >
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 shrink-0">
-            <div className="w-10 h-10 rounded-full bg-white shadow-md overflow-hidden flex items-center justify-center">
+          <Link href="/" className="flex items-center gap-3 shrink-0 group">
+            <div className="w-20 h-20 rounded-full bg-white shadow-md overflow-hidden flex items-center justify-center">
               <Image
                 src="/images/logo/svs_logo.svg"
                 alt="Sri Venkata Sai Devasthanam Logo"
                 width={40}
                 height={40}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-[2]"
                 priority
               />
             </div>
             <div className="hidden sm:block">
-              <p className="font-cinzel font-bold text-rust text-base leading-tight">
-                Sri Venkata Sai
+              <p className="font-cinzel font-bold text-rust text-xl leading-tight">
+                {t("logoTitle")}
               </p>
-              <p className="text-xs text-gray-500 font-poppins leading-tight">
-                Temple · Yemmiganur
+              <p className="text-sm text-gray-500 font-poppins leading-tight mt-1">
+                {t("logoSubtitle")}
               </p>
             </div>
           </Link>

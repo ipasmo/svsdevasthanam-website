@@ -201,7 +201,7 @@ export interface PaginatedResponse<T> {
 
 // ─── i18n ────────────────────────────────────────────────────────────────────
 
-export type SupportedLocale = "en" | "te" | "hi";
+export type SupportedLocale = "en" | "te" | "hi" | "ta";
 
 export interface LanguageOption {
   code: SupportedLocale;

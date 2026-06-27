@@ -1,6 +1,6 @@
 ### Go to project folder
 ```
-cd D:\Mone\Projects\svsdevastanam\sourcecode\srivenkatasai-website_v3
+cd /D/Mone/Projects/svsdevastanam/sourcecode/srivenkatasai-website_v3
 ```
 -----------------------------------------------------------------------------------------------
 ### Install frontend dependencies
@@ -10,7 +10,7 @@ cd frontend && npm install
 -----------------------------------------------------------------------------------------------
 ### Install backend dependencies
 ```
-cd ../backend && npm install
+cd cd /D/Mone/Projects/svsdevastanam/sourcecode/srivenkatasai-website_v3/backend && npm install
 ```
 -----------------------------------------------------------------------------------------------
 ### Start Docker Services - Start PostgreSQL and MinIO before running migrations or the backend.
@@ -18,7 +18,7 @@ cd ../backend && npm install
 #### MinIO auto-creates the `svs-devastanam-media` bucket as public on first start.
 
 ```
-cd D:\Mone\Projects\svsdevastanam\sourcecode\srivenkatasai-website_v3\docker
+cd /D/Mone/Projects/svsdevastanam/sourcecode/srivenkatasai-website_v3/docker
 docker compose -f docker-compose.dev.yml stop postgres minio minio-init
 docker compose -f docker-compose.dev.yml up postgres minio minio-init -d
 docker compose -f docker-compose.dev.yml stop backend frontend
@@ -26,7 +26,7 @@ docker compose -f docker-compose.dev.yml stop backend frontend
 -----------------------------------------------------------------------------------------------
 ### Start Database
 ```
-cd D:\Mone\Projects\svsdevastanam\sourcecode\srivenkatasai-website_v3\backend
+cd /D/Mone/Projects/svsdevastanam/sourcecode/srivenkatasai-website_v3/backend
 ```
 
 ### Generate Prisma client to generate local database
@@ -53,12 +53,12 @@ npx prisma studio
 
 #### Terminal 1: Backend API (port 4000)
 ```
-cd D:\Mone\Projects\svsdevastanam\sourcecode\srivenkatasai-website_v3\backend && npm run start:dev
+cd /d/Mone/Projects/svsdevastanam/sourcecode/srivenkatasai-website_v3/backend && npm run start:dev
 ```
 
 #### Terminal 2: Frontend (port 3000)
 ```
-cd D:\Mone\Projects\svsdevastanam\sourcecode\srivenkatasai-website_v3\frontend && npm run dev
+cd /D/Mone/Projects/svsdevastanam/sourcecode/srivenkatasai-website_v3/frontend && npm run dev
 ```
 -----------------------------------------------------------------------------------------------
 ### Public website								- http://localhost:3000

@@ -86,7 +86,7 @@ async function main() {
     {
       slug: 'sri-venkata-sai',
       nameEn: 'Sri Venkata Sai',
-      nameTe: 'శ్రీ వెంకట సాయి',
+      nameTe: 'శ్రీ వేంకట సాయి',
       nameHi: 'श्री वेंकट साई',
       descriptionEn: 'The presiding deity of the temple, Sri Venkata Sai is revered by millions of devotees.',
       significance: 'Fulfills the wishes of devotees and blesses them with prosperity and peace.',

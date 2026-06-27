@@ -1,7 +1,7 @@
 import { getRequestConfig } from "next-intl/server";
 import { cookies } from "next/headers";
 
-export const locales = ["en", "te", "hi"] as const;
+export const locales = ["en", "te", "hi", "ta"] as const;
 export const DEFAULT_LOCALE = "en";
 export type Locale = (typeof locales)[number];
 

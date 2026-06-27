@@ -24,6 +24,7 @@ export const LANGUAGES: LanguageOption[] = [
   { code: "en", label: "English", nativeLabel: "English", flag: "🇬🇧" },
   { code: "te", label: "Telugu", nativeLabel: "తెలుగు", flag: "🇮🇳" },
   { code: "hi", label: "Hindi", nativeLabel: "हिंदी", flag: "🇮🇳" },
+  { code: "ta", label: "Tamil", nativeLabel: "தமிழ்", flag: "🇮🇳" },
 ];
 
 export const DEFAULT_LOCALE = "en";

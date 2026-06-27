@@ -28,7 +28,7 @@ export function Footer() {
               </div>
               <div>
                 <p className="font-cinzel font-bold text-white">Sri Venkata Sai</p>
-                <p className="text-xs text-golden/80 font-poppins">Temple · Yemmiganur</p>
+                <p className="text-xs text-golden/80 font-poppins">Devasthanam · Yemmiganur</p>
               </div>
             </div>
             <p className="text-sm text-white/70 font-noto leading-relaxed mb-4">
