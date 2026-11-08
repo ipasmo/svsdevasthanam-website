@@ -7,7 +7,15 @@ async function main() {
   console.log('🌱 Seeding database...');
 
   // ─── Admin Users ──────────────────────────────────────────────────────────
-  const passwordHash = await bcrypt.hash('Admin@123', 10);
+  // A cloud database must never get the well-known local default password.
+  const seedPassword = process.env.SEED_ADMIN_PASSWORD?.trim();
+  if (!seedPassword && process.env.NODE_ENV === 'production') {
+    throw new Error('SEED_ADMIN_PASSWORD must be set when seeding with NODE_ENV=production');
+  }
+  if (seedPassword && seedPassword.length < 12) {
+    throw new Error('SEED_ADMIN_PASSWORD must be at least 12 characters');
+  }
+  const passwordHash = await bcrypt.hash(seedPassword || 'Admin@123', 10);
 
   const superAdmin = await prisma.user.upsert({
     where: { email: 'admin@srivenkatasai.org' },
@@ -256,7 +264,7 @@ async function main() {
   console.log('\n🎉 Seeding complete!');
   console.log('\n📋 Admin Credentials:');
   console.log('   Email    : admin@srivenkatasai.org');
-  console.log('   Password : Admin@123');
+  console.log(`   Password : ${seedPassword ? '(value of SEED_ADMIN_PASSWORD)' : 'Admin@123 (local default)'}`);
   console.log('   Role     : SUPER_ADMIN\n');
 }
 
