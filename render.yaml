@@ -1,0 +1,57 @@
+# Render Blueprint for the NestJS backend.
+# No rootDir: Render hides files outside rootDir, and this npm workspaces repo has a
+# single package-lock.json at the root, so commands run from the root with -w backend.
+# Database migrations are NOT run here; they are applied manually to Neon
+# (see readme/DEPLOYMENT.md).
+services:
+  - type: web
+    name: svs-backend
+    runtime: node
+    # free sleeps after inactivity (slow first request, can delay Razorpay verification).
+    # Use a paid plan (e.g. starter) for production.
+    plan: free
+    region: singapore # closest Render region to India; cannot be changed later
+    branch: release/uat-test
+    # --include=dev: nest CLI and prisma are devDependencies, and NODE_ENV=production
+    # below would otherwise make npm skip them.
+    buildCommand: npm ci --include=dev && npm run prisma:generate --workspace=backend && npm run build --workspace=backend
+    startCommand: npm run start:prod --workspace=backend
+    healthCheckPath: /api/health
+    buildFilter:
+      paths:
+        - backend/**
+        - package.json
+        - package-lock.json
+        - render.yaml
+        - .nvmrc
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_PREFIX
+        value: api
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL # Neon pooled (-pooler) URL
+        sync: false
+      - key: DIRECT_URL # Neon direct URL
+        sync: false
+      - key: FRONTEND_URL # comma-separated Netlify / custom-domain origins
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: AWS_REGION
+        value: ap-south-1
+      - key: AWS_S3_BUCKET
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: THROTTLE_TTL
+        value: "60"
+      - key: THROTTLE_LIMIT
+        value: "100"
