@@ -80,8 +80,8 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        {/* Favicon links come from src/app/favicon.ico, icon.png and apple-icon.png
+            (Next.js file conventions; regenerate with `node generate-favicons.mjs`). */}
         <link rel="manifest" href="/manifest.json" />
         <script
           type="application/ld+json"
