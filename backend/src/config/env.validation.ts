@@ -29,6 +29,15 @@ export function validateEnv(config: Record<string, unknown>): Record<string, unk
   return config;
 }
 
+// SWAGGER_ENABLED overrides the default (on everywhere except NODE_ENV=production),
+// so the cloud dev backend can run in production mode and still expose /api/docs.
+export function isSwaggerEnabled(env: Record<string, string | undefined>): boolean {
+  const flag = env.SWAGGER_ENABLED?.trim().toLowerCase();
+  if (flag === 'true') return true;
+  if (flag === 'false') return false;
+  return env.NODE_ENV !== 'production';
+}
+
 // FRONTEND_URL may hold several comma-separated origins (e.g. custom domain + Netlify URL).
 export function parseAllowedOrigins(value: string | undefined): string[] {
   return (value ?? '')

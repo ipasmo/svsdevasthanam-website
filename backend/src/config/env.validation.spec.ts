@@ -1,4 +1,4 @@
-import { parseAllowedOrigins, validateEnv } from './env.validation';
+import { isSwaggerEnabled, parseAllowedOrigins, validateEnv } from './env.validation';
 
 const STRONG_SECRET = 'x'.repeat(32);
 
@@ -36,6 +36,28 @@ describe('validateEnv', () => {
 
   it('rejects a short JWT_SECRET in production', () => {
     expect(() => validateEnv({ ...productionEnv, JWT_SECRET: 'too-short' })).toThrow(/at least 32/);
+  });
+});
+
+describe('isSwaggerEnabled', () => {
+  it('defaults to on outside production', () => {
+    expect(isSwaggerEnabled({ NODE_ENV: 'development' })).toBe(true);
+  });
+
+  it('defaults to off in production', () => {
+    expect(isSwaggerEnabled({ NODE_ENV: 'production' })).toBe(false);
+  });
+
+  it('can be switched on in production (cloud dev backend)', () => {
+    expect(isSwaggerEnabled({ NODE_ENV: 'production', SWAGGER_ENABLED: 'true' })).toBe(true);
+  });
+
+  it('can be switched off in development', () => {
+    expect(isSwaggerEnabled({ NODE_ENV: 'development', SWAGGER_ENABLED: 'FALSE ' })).toBe(false);
+  });
+
+  it('ignores unrecognised values and keeps the default', () => {
+    expect(isSwaggerEnabled({ NODE_ENV: 'production', SWAGGER_ENABLED: 'yes' })).toBe(false);
   });
 });
 

@@ -3,7 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
-import { parseAllowedOrigins } from './config/env.validation';
+import { isSwaggerEnabled, parseAllowedOrigins } from './config/env.validation';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -48,8 +48,8 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger (disable in production)
-  if (process.env.NODE_ENV !== 'production') {
+  // Swagger: off in production unless SWAGGER_ENABLED=true (used by the cloud dev backend)
+  if (isSwaggerEnabled(process.env)) {
     const config = new DocumentBuilder()
       .setTitle('SVS Devasthanam API')
       .setDescription('Sri Venkata Sai Devasthanam REST API')

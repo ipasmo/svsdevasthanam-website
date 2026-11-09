@@ -63,7 +63,7 @@ For a new, empty database, run them in this order:
 | 4 | `v1.4_festival_and_deity_schema.sql` | Schema: new `Festival` table and `Deity.shortDescriptionEn`. Same SQL as Prisma migration `20261109120000_festivals_and_deity_short_description`. |
 | 5 | `v1.5_website_content_data.sql` | Data: replaces the v1.1 sample deities, timings and poojas with the website's data, adds 12 festivals, and removes the 2 outdated sample events |
 
-`v1.3` is reserved for the app database role (`svs_app`, still to be written).
+There is no `v1.3`. A separate limited database account for the app was considered and dropped for the dev environment, so the app uses the Neon owner connection strings.
 
 How they behave:
 - Each script runs in one transaction, checks that the previous step was done, and refuses to run twice.
@@ -128,8 +128,10 @@ Apply the schema (1.2) first. Use the **direct** URL for `psql`. Delete `svs_dat
 
 ---
 
-## 2. Media storage (AWS S3)
-MinIO only exists locally, so production needs a real bucket.
+## 2. Media storage (AWS S3) – ON HOLD
+> **Skip this section for now.** The choice between AWS S3 and Cloudflare R2 isn't made yet. Render is set up without storage variables. The API runs normally; only image upload (`POST /api/upload`) fails until storage is configured. The steps below apply if AWS S3 is chosen.
+
+MinIO only exists locally, so the cloud needs a real bucket.
 
 1. Create an S3 bucket, e.g. `svs-devastanam-media` in `ap-south-1`. Keep "ACLs disabled (recommended)".
 2. Allow public read of objects with a **bucket policy**: turn off "Block public access" for policies only, then add:
@@ -205,6 +207,7 @@ These lists come from the code (`process.env` usages), not only the example file
 | `NODE_ENV` | Yes | `production` | No | `main.ts`, `env.validation.ts` | Turns off Swagger, enables strict checks |
 | `PORT` | Set by Render | `10000` | No | `main.ts` | Don't set it yourself |
 | `API_PREFIX` | No | `api` | No | `main.ts` | Default `api`; must match the health path |
+| `SWAGGER_ENABLED` | No | `true` (dev) | No | `main.ts`, `env.validation.ts` | Forces Swagger at `/api/docs` on (`true`) or off (`false`). Unset = on, except when `NODE_ENV=production`. Dev on Render: `true`. Production: leave unset. |
 | `DATABASE_URL` | **Yes** | `postgresql://…-pooler…/svs_db?sslmode=require&connect_timeout=15` | **Yes** | Prisma | Neon **pooled** URL |
 | `DIRECT_URL` | **Yes** | `postgresql://…(no -pooler)…/svs_db?sslmode=require&connect_timeout=15` | **Yes** | `schema.prisma` | Neon **direct** URL, used by migrations |
 | `JWT_SECRET` | **Yes** | *(generated, at least 32 chars)* | **Yes** | `auth.module.ts`, `jwt.strategy.ts` | The Blueprint generates it. Changing it logs everyone out |
@@ -212,7 +215,7 @@ These lists come from the code (`process.env` usages), not only the example file
 | `FRONTEND_URL` | **Yes (prod)** | `https://www.srivenkatasai.org,https://svs-uat.netlify.app` | No | `main.ts` CORS | Comma-separated exact origins, no trailing `/`, no wildcards |
 | `RAZORPAY_KEY_ID` | **Yes (prod)** | `rzp_test_…` | No | `donations.service.ts` | Test keys for UAT |
 | `RAZORPAY_KEY_SECRET` | **Yes (prod)** | — | **Yes** | `donations.service.ts` | Never in the frontend |
-| `AWS_REGION` | No | `ap-south-1` | No | `upload.service.ts` | |
+| `AWS_REGION` | No | `ap-south-1` | No | `upload.service.ts` | **Storage variables are on hold.** They're not in `render.yaml`; add them in the dashboard once S3/R2 is decided. |
 | `AWS_S3_BUCKET` | For uploads | `svs-devastanam-media` | No | `upload.service.ts` | |
 | `AWS_ACCESS_KEY_ID` | For uploads | — | **Yes** | `upload.service.ts` | IAM user limited to the bucket |
 | `AWS_SECRET_ACCESS_KEY` | For uploads | — | **Yes** | `upload.service.ts` | |
@@ -256,7 +259,7 @@ Don't set `NODE_ENV=production` on Netlify. The build needs devDependencies (Tai
 |---|---|
 | `https://<render>/api/health` | `{"status":"ok"}` |
 | `https://<render>/api/deities` | JSON list (proves the Neon connection works) |
-| `https://<render>/api/docs` | 404 (Swagger is off in production) |
+| `https://<render>/api/docs` | Dev (`SWAGGER_ENABLED=true`): Swagger UI loads. Production (unset): 404 |
 | Netlify home page | Loads; no CSP errors in the browser console |
 | Language switcher (EN/TE/HI/TA) | Text changes after reload |
 | `/admin/dashboard` while logged out | Redirects to `/auth/login` |

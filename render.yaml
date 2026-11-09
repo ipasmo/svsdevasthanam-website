@@ -27,6 +27,9 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # Development environment: keep Swagger at /api/docs. Remove (or set false) for production.
+      - key: SWAGGER_ENABLED
+        value: "true"
       - key: API_PREFIX
         value: api
       - key: JWT_EXPIRES_IN
@@ -43,14 +46,10 @@ services:
         sync: false
       - key: RAZORPAY_KEY_SECRET
         sync: false
-      - key: AWS_REGION
-        value: ap-south-1
-      - key: AWS_S3_BUCKET
-        sync: false
-      - key: AWS_ACCESS_KEY_ID
-        sync: false
-      - key: AWS_SECRET_ACCESS_KEY
-        sync: false
+      # Media storage (AWS S3 vs Cloudflare R2) is on hold, so no storage variables are
+      # requested here. The API starts without them; only POST /api/upload fails.
+      # When decided, add in the Render dashboard: AWS_REGION, AWS_S3_BUCKET,
+      # AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY (+ AWS_S3_ENDPOINT for R2).
       - key: THROTTLE_TTL
         value: "60"
       - key: THROTTLE_LIMIT
