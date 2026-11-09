@@ -14,6 +14,7 @@ import { DonationsModule } from './donations/donations.module';
 import { UploadModule } from './upload/upload.module';
 import { VideosModule } from './videos/videos.module';
 import { HealthModule } from './health/health.module';
+import { FestivalsModule } from './festivals/festivals.module';
 import { validateEnv } from './config/env.validation';
 
 @Module({
@@ -36,6 +37,7 @@ import { validateEnv } from './config/env.validation';
     UploadModule,
     VideosModule,
     HealthModule,
+    FestivalsModule,
   ],
 })
 export class AppModule {}

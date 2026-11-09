@@ -60,6 +60,10 @@ For a new, empty database, run them in this order:
 | 1 | `v1.0_initial_db_setup.sql` | Tables, indexes and keys |
 | 2 | `v1.1_initial_data_setup.sql` | Website content: pages, deities, timings, poojas, announcements, gallery categories, events |
 | 3 | `v1.2_initial_user_setup.sql` | The 3 admin users (**sensitive**) |
+| 4 | `v1.4_festival_and_deity_schema.sql` | Schema: new `Festival` table and `Deity.shortDescriptionEn`. Same SQL as Prisma migration `20261109120000_festivals_and_deity_short_description`. |
+| 5 | `v1.5_website_content_data.sql` | Data: replaces the v1.1 sample deities, timings and poojas with the website's data, adds 12 festivals, and removes the 2 outdated sample events |
+
+`v1.3` is reserved for the app database role (`svs_app`, still to be written).
 
 How they behave:
 - Each script runs in one transaction, checks that the previous step was done, and refuses to run twice.
