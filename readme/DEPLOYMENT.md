@@ -1,5 +1,7 @@
 # Cloud Deployment: Netlify + Render + Neon
 
+> **Scope:** this guide covers the **development** cloud environment. Production will use Cloudflare Pages (frontend), Cloudflare R2 (media) and Neon. The production backend host is not decided yet, and the production guide is still to be written.
+
 This guide deploys the website to three services:
 
 - **Frontend** (Next.js 14) on **Netlify**
@@ -65,14 +67,26 @@ npm run prisma:deploy    # = prisma migrate deploy (applies pending migrations o
 ```
 
 **Method B: SQL scripts in the Neon SQL Editor.**
-1. For each folder in `backend/prisma/migrations/<timestamp>_<name>/`, oldest first, run its `migration.sql` in the Neon SQL Editor.
-2. Then tell Prisma it was applied, so later `migrate deploy`/`status` calls stay correct:
+For a new, empty database, run these scripts from `database/scripts/` in order, connected as the database **owner**:
 
-   ```bash
-   npx prisma migrate resolve --applied <timestamp>_<name>
-   ```
+| Order | Script | What it does |
+|---|---|---|
+| 1 | `v1.0_initial_db_setup.sql` | Tables, indexes and keys, and records Prisma migration `20260307163420_init` as applied |
+| 2 | `v1.1_initial_data_setup.sql` | Website content: pages, deities, timings, poojas, announcements, gallery categories, events |
+| 3 | `v1.3_initial_user_setup.sql` | The 3 admin users (**sensitive**) |
 
-   Skipping this step makes Prisma try to re-apply the migration later and fail.
+How they behave:
+- Each script runs in one transaction, checks that the previous step was done, and refuses to run twice.
+- For `v1.3`, replace `CHANGE_ME` in the SQL Editor only. Never commit a real password.
+- With these scripts you can skip step 1.3 (seeding).
+
+For later schema changes, run the matching `vX.Y_*.sql` script. If a script doesn't insert its own `_prisma_migrations` row, tell Prisma it was applied:
+
+```bash
+npx prisma migrate resolve --applied <timestamp>_<name>
+```
+
+Otherwise Prisma will try to re-apply the migration later and fail.
 
 Never run `prisma migrate dev`, `prisma migrate reset` or `prisma db push` against Neon. They can drop data. Create new migrations locally with `npm run prisma:migrate -- --name <change>`, commit them, then apply them to Neon with Method A or B.
 

@@ -11,8 +11,16 @@ Think about the long-term health of the system, not only the quick fix.
   - Frontend: Next.js 14 (App Router) + TypeScript, TailwindCSS 3 (custom palette: saffron `#FB9C1B`, rust `#C83A00`, golden `#FFCA32`, teal `#11AD99`, offwhite `#F7F6E5`), next-intl, Zustand, TanStack Query v5, React Hook Form + Zod, Framer Motion, Radix UI, lucide-react, axios.
   - Backend: NestJS 10 + TypeScript, Prisma 5 + PostgreSQL 16, Passport-JWT, bcrypt, class-validator, helmet, `@nestjs/throttler`, Swagger, Razorpay (donations), AWS S3 SDK (MinIO locally).
   - DevOps: Docker multi-stage images, `docker/docker-compose.dev.yml` (postgres, minio, minio-init, backend, frontend) and `docker-compose.prod.yml` behind Nginx (`docker/nginx.conf`).
-  - Cloud: frontend on **Netlify** (`frontend/netlify.toml`, Package directory `frontend`, base = repo root), backend on **Render** (`render.yaml`, no rootDir, builds from the root lockfile with `--workspace=backend`), database on **Neon**, media on AWS S3. Node version from `/.nvmrc` (20). Full guide and env var tables: `readme/DEPLOYMENT.md`.
-  - Database migrations are applied **manually** to Neon by me (`npm run prisma:deploy` with `DIRECT_URL`, or SQL in the Neon editor + `prisma migrate resolve`). Render never runs migrations. Never run `migrate dev`/`reset`/`db push` against Neon.
+  - Environments:
+    | | Local | Development (cloud) | Production |
+    |---|---|---|---|
+    | Frontend | `npm run dev` | Netlify (`frontend/netlify.toml`) | Cloudflare Pages (not set up yet) |
+    | Backend | `npm run start:dev` | Render (`render.yaml`) | **Undecided**: "Cloudflare R2" was named, but R2 is object storage and cannot run the API |
+    | Database | Docker Postgres | Neon | Neon (separate project/branch) |
+    | Media | MinIO (Docker) | AWS S3 per guide (R2 recommended for parity) | Cloudflare R2 (probably the intended use of R2) |
+    Docker is meant for the **local database only**. `docker-compose.prod.yml`, `nginx.conf` and the production Dockerfile stages are leftovers from an older VM-based plan.
+  - Netlify: Package directory `frontend`, base = repo root. Render: no rootDir, builds from the root lockfile with `--workspace=backend`. Node version from `/.nvmrc` (20). Dev-cloud guide and env var tables: `readme/DEPLOYMENT.md`.
+  - Database migrations are applied **manually** to Neon by me. Versioned SQL scripts live in `database/scripts/`, run in order: `v1.0_initial_db_setup.sql` (tables + Prisma history row), `v1.1_initial_data_setup.sql` (content inserts/updates/deletes), `v1.3_initial_user_setup.sql` (admin users, sensitive: password placeholder `CHANGE_ME`, never commit a real one). Keep this split: schema, data and users in separate scripts. Each script is one transaction with guards (prerequisites done, not run twice). Each new Prisma migration needs a matching new script (`v1.1_...`); never edit an applied script. Alternative: `npm run prisma:deploy` with `DIRECT_URL`. Render never runs migrations. Never run `migrate dev`/`reset`/`db push` against Neon.
 - Ports: frontend 3000, backend 4000 (all routes under `/api`; Swagger at `/api/docs`, dev only), Postgres 5432, MinIO 9000 (S3) / 9001 (console).
 - Run locally (see `local_commands.md` for my exact steps):
   1. `cd docker && docker compose -f docker-compose.dev.yml up postgres minio minio-init -d`
