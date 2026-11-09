@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { DEITIES } from "@/lib/constants";
+import { getDeities } from "@/lib/content";
 import { ChevronRight } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 export const metadata: Metadata = {
   title: "Temple Deities - Sri Venkata Sai Devasthanam",
@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 
 export default async function DeitiesPage() {
   const t = await getTranslations("deities");
+  const deities = await getDeities(await getLocale());
   return (
     <div className="bg-offwhite">
       {/* Hero */}
@@ -28,7 +29,7 @@ export default async function DeitiesPage() {
 
       <div className="container mx-auto px-4 py-16">
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {DEITIES.map((deity) => (
+          {deities.map((deity) => (
             <Link key={deity.id} href={`/deities/${deity.slug}`}>
               <article className="temple-card group cursor-pointer h-full">
                 {/* Deity Image Placeholder */}

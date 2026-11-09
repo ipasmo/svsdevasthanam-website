@@ -15,6 +15,7 @@ import { UploadModule } from './upload/upload.module';
 import { VideosModule } from './videos/videos.module';
 import { HealthModule } from './health/health.module';
 import { FestivalsModule } from './festivals/festivals.module';
+import { PoojasModule } from './poojas/poojas.module';
 import { validateEnv } from './config/env.validation';
 
 @Module({
@@ -38,6 +39,7 @@ import { validateEnv } from './config/env.validation';
     VideosModule,
     HealthModule,
     FestivalsModule,
+    PoojasModule,
   ],
 })
 export class AppModule {}

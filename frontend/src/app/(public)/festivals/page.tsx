@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Calendar, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { getFestivals } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Festivals & Events - Sri Venkata Sai Devasthanam",
@@ -10,109 +11,11 @@ export const metadata: Metadata = {
     "Celebrate divine festivals at Sri Venkata Sai Devasthanam. Brahmotsavam, Rama Navami, Mahashivaratri, Guru Purnima, Sai Baba Aradhana, and more.",
 };
 
-const FESTIVALS = [
-  {
-    id: "1",
-    name: "Brahmotsavam",
-    month: "March / April",
-    description: "The grandest annual festival of Sri Venkata Sai Devasthanam, celebrated over 9 days with special poojas, processions, cultural programs, and mass annadanam.",
-    icon: "🎺",
-    highlight: true,
-  },
-  {
-    id: "2",
-    name: "Rama Navami",
-    month: "March / April",
-    description: "Birth anniversary of Lord Rama celebrated with special poojas, Ramayana parayanam, and cultural programs.",
-    icon: "🏹",
-    highlight: false,
-  },
-  {
-    id: "3",
-    name: "Hanuman Jayanti",
-    month: "April",
-    description: "Birthday of Lord Hanuman celebrated with Sundara Kanda parayanam, special abhishekam, and devotional songs.",
-    icon: "🙏",
-    highlight: false,
-  },
-  {
-    id: "4",
-    name: "Sai Baba Aradhana",
-    month: "October",
-    description: "The divine mahanirvana day of Shirdi Sai Baba observed with special poojas, bhajans, and Sai Satcharitra parayanam.",
-    icon: "⭐",
-    highlight: true,
-  },
-  {
-    id: "5",
-    name: "Maha Shivaratri",
-    month: "February / March",
-    description: "The great night of Lord Shiva celebrated with all-night vigil, rudrabhishekam, and special poojas.",
-    icon: "🌙",
-    highlight: false,
-  },
-  {
-    id: "6",
-    name: "Guru Purnima",
-    month: "July",
-    description: "Day of gratitude to all gurus, observed with special poojas, discourses, and devotees seeking blessings.",
-    icon: "✨",
-    highlight: false,
-  },
-  {
-    id: "7",
-    name: "Ganesh Chaturthi",
-    month: "August / September",
-    description: "10-day celebration of Lord Ganesha with daily poojas, cultural programs, and grand immersion on the final day.",
-    icon: "🐘",
-    highlight: false,
-  },
-  {
-    id: "8",
-    name: "Navaratri",
-    month: "September / October",
-    description: "Nine auspicious nights dedicated to Goddess Durga, Lakshmi, and Saraswati with special daily poojas.",
-    icon: "🌺",
-    highlight: false,
-  },
-  {
-    id: "9",
-    name: "Deepavali",
-    month: "October / November",
-    description: "Festival of lights celebrated with special temple illumination, fireworks, and midnight lakshmi pooja.",
-    icon: "🪔",
-    highlight: false,
-  },
-  {
-    id: "10",
-    name: "Vaikunta Ekadashi",
-    month: "December / January",
-    description: "Sacred ekadashi dedicated to Lord Vishnu with special midnight darshan and door of liberation open for devotees.",
-    icon: "🚪",
-    highlight: false,
-  },
-  {
-    id: "11",
-    name: "Ugadi",
-    month: "March / April",
-    description: "Telugu New Year celebrated with special poojas, panchangam reading, and community celebrations.",
-    icon: "🌟",
-    highlight: false,
-  },
-  {
-    id: "12",
-    name: "Karthika Masa",
-    month: "November",
-    description: "Holy month dedicated to Lord Shiva and Vishnu, with daily diya lighting, special poojas throughout the month.",
-    icon: "🕯️",
-    highlight: false,
-  },
-];
-
 export default async function FestivalsPage() {
   const t = await getTranslations("festivals");
-  const highlighted = FESTIVALS.filter((f) => f.highlight);
-  const regular = FESTIVALS.filter((f) => !f.highlight);
+  const festivals = await getFestivals(await getLocale());
+  const highlighted = festivals.filter((f) => f.highlight);
+  const regular = festivals.filter((f) => !f.highlight);
 
   return (
     <div className="bg-offwhite">
@@ -155,7 +58,7 @@ export default async function FestivalsPage() {
         <section>
           <SectionHeader title={t("calendarTitle")} subtitle={t("calendarSubtitle")} align="left" className="mb-8" />
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {FESTIVALS.map((festival) => (
+            {festivals.map((festival) => (
               <div
                 key={festival.id}
                 className="bg-white rounded-xl p-5 shadow-sm border border-amber-100 hover:border-saffron hover:shadow-temple-card transition-all duration-200 group"

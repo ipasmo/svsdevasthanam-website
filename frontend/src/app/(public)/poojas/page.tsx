@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { POOJAS } from "@/lib/constants";
+import { getPoojas } from "@/lib/content";
+import type { Pooja } from "@/types";
 import { formatCurrency } from "@/lib/utils";
 import { Clock, Info, IndianRupee } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 export const metadata: Metadata = {
   title: "Poojas & Sevas - Sri Venkata Sai Devasthanam",
@@ -21,11 +22,12 @@ const TYPE_CONFIG: Record<string, { label: string; colorClass: string }> = {
 
 export default async function PoojasPage() {
   const t = await getTranslations("poojas");
-  const dailyPoojas = POOJAS.filter((p) => p.type === "DAILY");
-  const weeklySevas = POOJAS.filter((p) => p.type === "WEEKLY");
-  const specialSevas = POOJAS.filter((p) => p.type === "SPECIAL");
+  const poojas = await getPoojas(await getLocale());
+  const dailyPoojas = poojas.filter((p) => p.type === "DAILY");
+  const weeklySevas = poojas.filter((p) => p.type === "WEEKLY");
+  const specialSevas = poojas.filter((p) => p.type === "SPECIAL");
 
-  const PoojaCard = ({ pooja }: { pooja: (typeof POOJAS)[0] }) => (
+  const PoojaCard = ({ pooja }: { pooja: Pooja }) => (
     <div className="temple-card p-6 flex flex-col h-full">
       <div className="flex items-start justify-between mb-3">
         <h3 className="font-playfair font-bold text-rust text-lg">{pooja.name}</h3>

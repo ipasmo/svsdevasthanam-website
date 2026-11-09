@@ -6,9 +6,10 @@ import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { useTranslations } from "next-intl";
-import { DEITIES } from "@/lib/constants";
+import type { Deity } from "@/types";
 
-export function DeitiesPreview() {
+// Data is loaded on the server by the home page (lib/content.ts) and passed in.
+export function DeitiesPreview({ deities }: { deities: Deity[] }) {
   const t = useTranslations("home.deities");
 
   return (
@@ -17,7 +18,7 @@ export function DeitiesPreview() {
         <SectionHeader title={t("title")} subtitle={t("subtitle")} className="mb-12" />
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {DEITIES.map((deity, index) => (
+          {deities.map((deity, index) => (
             <motion.div
               key={deity.id}
               initial={{ opacity: 0, y: 20 }}
