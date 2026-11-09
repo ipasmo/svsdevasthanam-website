@@ -2,7 +2,7 @@
 -- v1.0 – Initial database schema (tables only)
 -- Sri Venkata Sai Devasthanam
 -- =============================================================================
--- Run ORDER:  v1.0 (this) → v1.1_initial_data_setup.sql → v1.3_initial_user_setup.sql
+-- Run ORDER:  v1.0 (this) → v1.1_initial_data_setup.sql → v1.2_initial_user_setup.sql
 --
 -- Run ONCE on an EMPTY database (Neon SQL Editor connected as the database OWNER,
 -- or psql with the DIRECT, non "-pooler" connection string). Postgres 16.

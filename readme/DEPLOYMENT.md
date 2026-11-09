@@ -59,12 +59,12 @@ For a new, empty database, run them in this order:
 |---|---|---|
 | 1 | `v1.0_initial_db_setup.sql` | Tables, indexes and keys |
 | 2 | `v1.1_initial_data_setup.sql` | Website content: pages, deities, timings, poojas, announcements, gallery categories, events |
-| 3 | `v1.3_initial_user_setup.sql` | The 3 admin users (**sensitive**) |
+| 3 | `v1.2_initial_user_setup.sql` | The 3 admin users (**sensitive**) |
 
 How they behave:
 - Each script runs in one transaction, checks that the previous step was done, and refuses to run twice.
 - Each one records itself in `"_prisma_migrations"` as a `manual` row. See what has been applied with: `SELECT migration_name, logs, finished_at FROM "_prisma_migrations" ORDER BY started_at;`
-- For `v1.3`, replace `CHANGE_ME` in the SQL Editor only. Never commit a real password.
+- For `v1.2`, replace `CHANGE_ME` in the SQL Editor only. Never commit a real password.
 
 **Don't use Prisma migration commands against Neon.** The Prisma migration `20260307163420_init` is deliberately not recorded in the database, so:
 - `prisma migrate status` reports it as not yet applied. This is expected.
@@ -83,7 +83,7 @@ npx prisma migrate diff --from-url "$DIRECT_URL" --to-schema-datamodel prisma/sc
 ```
 
 ### 1.3 Seed initial data (not needed for Neon)
-Skip this step for Neon: `v1.1` and `v1.3` already load the same data. Running both would duplicate rows. The npm seed is meant for local development. Reference only:
+Skip this step for Neon: `v1.1` and `v1.2` already load the same data. Running both would duplicate rows. The npm seed is meant for local development. Reference only:
 
 The seed creates three admin users. Against Neon it **requires** `SEED_ADMIN_PASSWORD` (at least 12 characters). The well-known local password `Admin@123` is refused in production.
 

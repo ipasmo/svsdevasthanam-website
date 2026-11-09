@@ -2,7 +2,7 @@
 -- v1.1 – Initial data (website content)
 -- Sri Venkata Sai Devasthanam
 -- =============================================================================
--- Run ORDER:  v1.0_initial_db_setup.sql → v1.1 (this) → v1.3_initial_user_setup.sql
+-- Run ORDER:  v1.0_initial_db_setup.sql → v1.1 (this) → v1.2_initial_user_setup.sql
 --
 -- Run ONCE, after v1.0, connected as the database OWNER (Neon SQL Editor or psql).
 -- Runs in ONE transaction: any error rolls everything back.

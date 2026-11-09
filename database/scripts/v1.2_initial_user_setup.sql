@@ -1,8 +1,8 @@
 -- =============================================================================
--- v1.3 – Initial admin users (SENSITIVE)
+-- v1.2 – Initial admin users (SENSITIVE)
 -- Sri Venkata Sai Devasthanam
 -- =============================================================================
--- Run ORDER:  v1.0_initial_db_setup.sql → v1.1_initial_data_setup.sql → v1.3 (this)
+-- Run ORDER:  v1.0_initial_db_setup.sql → v1.1_initial_data_setup.sql → v1.2 (this)
 --
 -- Run ONCE, after v1.0, connected as the database OWNER (Neon SQL Editor or psql).
 -- Runs in ONE transaction: any error rolls everything back.
@@ -32,7 +32,7 @@ BEGIN
   SELECT string_agg("email", ', ') INTO v_existing FROM "User"
   WHERE "email" IN ('admin@srivenkatasai.org', 'editor@srivenkatasai.org', 'finance@srivenkatasai.org');
   IF v_existing IS NOT NULL THEN
-    RAISE EXCEPTION 'User(s) already exist: %. v1.3 must only run once.', v_existing;
+    RAISE EXCEPTION 'User(s) already exist: %. v1.2 must only run once.', v_existing;
   END IF;
 END $$;
 
@@ -61,8 +61,8 @@ END $$;
 -- ─── Part 3: Record this manual script ───────────────────────────────────────
 -- Audit trail only (no user data or passwords); Prisma ignores this row.
 INSERT INTO "_prisma_migrations" ("id", "checksum", "finished_at", "migration_name", "logs", "started_at", "applied_steps_count")
-VALUES (gen_random_uuid()::text, 'manual', now(), 'v1.3_initial_user_setup.sql',
-        'manual: database/scripts/v1.3_initial_user_setup.sql', now(), 1);
+VALUES (gen_random_uuid()::text, 'manual', now(), 'v1.2_initial_user_setup.sql',
+        'manual: database/scripts/v1.2_initial_user_setup.sql', now(), 1);
 
 COMMIT;
 
