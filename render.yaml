@@ -1,0 +1,56 @@
+# Render Blueprint for the NestJS backend.
+# No rootDir: Render hides files outside rootDir, and this npm workspaces repo has a
+# single package-lock.json at the root, so commands run from the root with -w backend.
+# Database migrations are NOT run here; they are applied manually to Neon
+# (see readme/DEPLOYMENT.md).
+services:
+  - type: web
+    name: svs-backend
+    runtime: node
+    # free sleeps after inactivity (slow first request, can delay Razorpay verification).
+    # Use a paid plan (e.g. starter) for production.
+    plan: free
+    region: singapore # closest Render region to India; cannot be changed later
+    branch: release/uat-test
+    # --include=dev: nest CLI and prisma are devDependencies, and NODE_ENV=production
+    # below would otherwise make npm skip them.
+    buildCommand: npm ci --include=dev && npm run prisma:generate --workspace=backend && npm run build --workspace=backend
+    startCommand: npm run start:prod --workspace=backend
+    healthCheckPath: /api/health
+    buildFilter:
+      paths:
+        - backend/**
+        - package.json
+        - package-lock.json
+        - render.yaml
+        - .nvmrc
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Development environment: keep Swagger at /api/docs. Remove (or set false) for production.
+      - key: SWAGGER_ENABLED
+        value: "true"
+      - key: API_PREFIX
+        value: api
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL # Neon pooled (-pooler) URL
+        sync: false
+      - key: DIRECT_URL # Neon direct URL
+        sync: false
+      - key: FRONTEND_URL # comma-separated Netlify / custom-domain origins
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      # Media storage (AWS S3 vs Cloudflare R2) is on hold, so no storage variables are
+      # requested here. The API starts without them; only POST /api/upload fails.
+      # When decided, add in the Render dashboard: AWS_REGION, AWS_S3_BUCKET,
+      # AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY (+ AWS_S3_ENDPOINT for R2).
+      - key: THROTTLE_TTL
+        value: "60"
+      - key: THROTTLE_LIMIT
+        value: "100"

@@ -61,6 +61,7 @@ services:
     env_file: ../backend/.env
     environment:
       DATABASE_URL: postgresql://svs_user:svs_pass@postgres:5432/svs_db?schema=public
+      DIRECT_URL: postgresql://svs_user:svs_pass@postgres:5432/svs_db?schema=public
       NODE_ENV: development
       # MinIO local S3 — overrides .env values for Docker
       AWS_S3_ENDPOINT: http://minio:9000
@@ -68,6 +69,7 @@ services:
       AWS_ACCESS_KEY_ID: minioadmin
       AWS_SECRET_ACCESS_KEY: minioadmin
       AWS_S3_BUCKET: svs-devastanam-media
+      AWS_S3_OBJECT_ACL: public-read
       AWS_REGION: us-east-1
     ports:
       - "4000:4000"

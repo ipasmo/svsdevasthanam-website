@@ -3,23 +3,29 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { isSwaggerEnabled, parseAllowedOrigins } from './config/env.validation';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Render sends SIGTERM on redeploy; this lets PrismaService disconnect cleanly.
+  app.enableShutdownHooks();
+
   // Security
   app.use(helmet());
 
-  // CORS – in development also allow the backend's own origin so Swagger
-  // "Try it out" requests (Origin: http://localhost:<port>) are not blocked.
+  // CORS – FRONTEND_URL is a comma-separated list of exact origins (no wildcards,
+  // because credentials are allowed). In development also allow the backend's own
+  // origin so Swagger "Try it out" requests are not blocked.
   const port = process.env.PORT ?? 4000;
+  const frontendOrigins = parseAllowedOrigins(process.env.FRONTEND_URL);
   const allowedOrigins =
     process.env.NODE_ENV !== 'production'
       ? [
-          process.env.FRONTEND_URL ?? 'http://localhost:3000',
+          ...(frontendOrigins.length ? frontendOrigins : ['http://localhost:3000']),
           `http://localhost:${port}`,
         ]
-      : process.env.FRONTEND_URL ?? 'http://localhost:3000';
+      : frontendOrigins;
 
   app.enableCors({
     origin: allowedOrigins,
@@ -42,8 +48,8 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger (disable in production)
-  if (process.env.NODE_ENV !== 'production') {
+  // Swagger: off in production unless SWAGGER_ENABLED=true (used by the cloud dev backend)
+  if (isSwaggerEnabled(process.env)) {
     const config = new DocumentBuilder()
       .setTitle('SVS Devasthanam API')
       .setDescription('Sri Venkata Sai Devasthanam REST API')

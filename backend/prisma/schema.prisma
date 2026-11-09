@@ -5,9 +5,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// DATABASE_URL: app connection (Neon: pooled "-pooler" host).
+// DIRECT_URL: used only by Prisma CLI for migrations (Neon: direct host, no "-pooler").
+// Locally both point at the same Docker Postgres.
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ─── Enums ──────────────────────────────────────────────────────────────────
@@ -97,6 +101,7 @@ model Deity {
   descriptionEn String   @db.Text
   descriptionTe String?  @db.Text
   descriptionHi String?  @db.Text
+  shortDescriptionEn String? // one-line tagline shown on deity cards
   significance  String?  @db.Text
   imageUrl     String?
   orderIndex   Int      @default(0)
@@ -155,6 +160,26 @@ model Event {
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+// Recurring annual festivals. Dates follow the Hindu calendar and move every year,
+// so both `month` (free text, e.g. "March / April") and `date` are optional.
+// Dated, one-off occurrences belong in Event.
+model Festival {
+  id            String    @id @default(uuid())
+  slug          String    @unique
+  nameEn        String
+  nameTe        String?
+  nameHi        String?
+  descriptionEn String?   @db.Text
+  month         String?
+  date          DateTime?
+  icon          String?
+  isHighlighted Boolean   @default(false)
+  orderIndex    Int       @default(0)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Announcement {

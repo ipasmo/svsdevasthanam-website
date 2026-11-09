@@ -29,6 +29,7 @@ services:
     env_file: ../backend/.env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-svs_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-svs_db}?schema=public
+      DIRECT_URL: postgresql://${POSTGRES_USER:-svs_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-svs_db}?schema=public
       NODE_ENV: production
     networks:
       - svs-net

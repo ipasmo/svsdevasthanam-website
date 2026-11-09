@@ -1,0 +1,14 @@
+# Netlify config for the Next.js frontend (npm workspaces monorepo).
+# Netlify UI → Site configuration → Build & deploy:
+#   Base directory:    (leave empty = repo root, where package-lock.json lives)
+#   Package directory: frontend   (this file is read from here)
+# Next.js App Router + middleware are handled automatically by Netlify's OpenNext
+# adapter; no plugin needs to be installed. Node version comes from /.nvmrc.
+
+[build]
+  # Runs from the repo root so npm installs from the single root lockfile.
+  command = "npm run build --workspace=frontend"
+
+[build.environment]
+  NEXT_TELEMETRY_DISABLED = "1"
+  # Do not set NODE_ENV=production here: the build needs devDependencies (cross-env, tailwind, typescript).

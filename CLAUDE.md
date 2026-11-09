@@ -11,12 +11,23 @@ Think about the long-term health of the system, not only the quick fix.
   - Frontend: Next.js 14 (App Router) + TypeScript, TailwindCSS 3 (custom palette: saffron `#FB9C1B`, rust `#C83A00`, golden `#FFCA32`, teal `#11AD99`, offwhite `#F7F6E5`), next-intl, Zustand, TanStack Query v5, React Hook Form + Zod, Framer Motion, Radix UI, lucide-react, axios.
   - Backend: NestJS 10 + TypeScript, Prisma 5 + PostgreSQL 16, Passport-JWT, bcrypt, class-validator, helmet, `@nestjs/throttler`, Swagger, Razorpay (donations), AWS S3 SDK (MinIO locally).
   - DevOps: Docker multi-stage images, `docker/docker-compose.dev.yml` (postgres, minio, minio-init, backend, frontend) and `docker-compose.prod.yml` behind Nginx (`docker/nginx.conf`).
+  - Environments:
+    | | Local | Development (cloud) | Production |
+    |---|---|---|---|
+    | Frontend | `npm run dev` | Netlify (`frontend/netlify.toml`) | Cloudflare Pages (not set up yet) |
+    | Backend | `npm run start:dev` | Render (`render.yaml`) | **Undecided**: "Cloudflare R2" was named, but R2 is object storage and cannot run the API |
+    | Database | **Neon dev** (same DB as Development, decided 2026-11-09) | Neon dev | Neon (separate project) |
+    | Media | MinIO (Docker), on hold | On hold (AWS S3 or R2 undecided) | Cloudflare R2 (probably the intended use of R2) |
+    Local development now uses the shared Neon dev database, not Docker Postgres. Local changes (admin edits, test donations) change the dev cloud data. Don't run `npm run prisma:seed` (it would duplicate the v1.1/v1.2 data) or any `prisma migrate` command against it. Docker Postgres is only useful as a throwaway DB, e.g. for generating new Prisma migrations or testing SQL scripts. `docker-compose.prod.yml`, `nginx.conf` and the production Dockerfile stages are leftovers from an older VM-based plan.
+  - Netlify: Package directory `frontend`, base = repo root. Render: no rootDir, builds from the root lockfile with `--workspace=backend`. Node version from `/.nvmrc` (20). Dev-cloud guide and env var tables: `readme/DEPLOYMENT.md`.
+  - Database migrations are applied **manually** to Neon by me. Versioned SQL scripts live in `database/scripts/`, run in order: `v1.0_initial_db_setup.sql` (tables + script history table), `v1.1_initial_data_setup.sql` (content inserts/updates/deletes), `v1.2_initial_user_setup.sql` (admin users, sensitive: password placeholder `CHANGE_ME`, never commit a real one), `v1.3` unused (a limited app DB role was dropped by decision on 2026-11-09; the app uses the Neon owner credentials in dev, revisit for production), `v1.4_festival_and_deity_schema.sql` (= Prisma migration `20261109120000_festivals_and_deity_short_description`), `v1.5_website_content_data.sql` (DB content aligned with the website / `prompt.md`). The website data in `frontend/src/lib/constants.ts` and the Festivals page is the agreed source of truth for content; keep `seed.ts` and the scripts in step with it. Keep this split: schema, data and users in separate scripts. Each script is one transaction with guards (prerequisites done, not run twice), and ends by inserting its own row into `"_prisma_migrations"` (`migration_name` = file name, `checksum` = `'manual'`, `logs` = `'manual: database/scripts/<file>'`). By decision, the real Prisma migration rows (e.g. `20260307163420_init`) are NOT inserted. Neon is managed **only** by these scripts, so `prisma migrate status` shows Prisma migrations as pending (expected). **Never run `prisma migrate deploy`/`dev`/`reset`/`db push` against Neon**: deploy would try to re-create the tables and leave a failed migration. Verify Neon with the read-only `prisma migrate diff --from-url <direct url> --to-schema-datamodel prisma/schema.prisma --exit-code` (0 = matches). Prisma migrations are still generated locally; each new one needs a matching new script with the same SQL. Never edit an applied script. Render never runs migrations.
 - Ports: frontend 3000, backend 4000 (all routes under `/api`; Swagger at `/api/docs`, dev only), Postgres 5432, MinIO 9000 (S3) / 9001 (console).
-- Run locally (see `local_commands.md` for my exact steps):
-  1. `cd docker && docker compose -f docker-compose.dev.yml up postgres minio minio-init -d`
-  2. `cd backend && npx prisma generate && npx prisma migrate dev && npm run start:dev`
-  3. `cd frontend && npm run dev`
-  - Seed: `cd backend && npm run prisma:seed` (creates 3 admin users, all password `Admin@123`, local only).
+- Run locally (`backend/.env` points at Neon dev):
+  1. `cd backend && npx prisma generate && npm run start:dev`
+  2. `cd frontend && npm run dev`
+  - `backend/.env` needs `DATABASE_URL` (Neon pooled, `-pooler` host) and `DIRECT_URL` (same without `-pooler`), both with `sslmode=require&connect_timeout=15`. Prisma CLI commands fail without `DIRECT_URL`.
+  - Schema changes: edit `schema.prisma`, generate the SQL without touching Neon (e.g. `prisma migrate diff --from-url <direct url> --to-schema-datamodel prisma/schema.prisma --script`, or `prisma migrate dev` against a throwaway Docker Postgres), then put it in the next `database/scripts/vX.Y_*.sql` and test that script on a throwaway DB before I run it on Neon.
+  - Seed (`npm run prisma:seed`) is only for a fresh throwaway DB, never Neon.
 - Run tests (Jest in both):
   - `cd backend && npm test` — specs are `src/**/*.spec.ts` next to the code. Baseline 2026-11-08: 6 suites, 41 tests, all pass.
   - `cd frontend && npx jest --config jest.config.js` — plain `npm test` fails because both `jest.config.js` and `jest.config.ts` exist. Tests live in `frontend/src/__tests__/`. Baseline 2026-11-08: 131 pass, 3 fail (tests still expect 3 languages; Tamil made it 4).
@@ -24,6 +35,8 @@ Think about the long-term health of the system, not only the quick fix.
 - Key folders:
   - `backend/src/<feature>/` = one NestJS module per feature (controller + service + module): `auth`, `users`, `pages`, `deities`, `gallery`, `events`, `announcements`, `timings`, `donations`, `videos`, `upload`. Services call Prisma directly (no repository layer).
   - `backend/src/common/` = `JwtAuthGuard`, `RolesGuard` + `@Roles()` decorator, `AllExceptionsFilter`.
+  - `backend/src/config/env.validation.ts` = startup env checks (fail fast) + `FRONTEND_URL` comma-list parsing for CORS. New required env vars go here.
+  - `backend/src/health/` = `GET /api/health` liveness (deliberately no DB ping, so Neon can auto-suspend).
   - `backend/prisma/schema.prisma` = 13 models (User, Page, PageTranslation, Deity, GalleryCategory, GalleryImage, Video, Event, Announcement, TempleTiming, Pooja, Donation). Migrations in `backend/prisma/migrations/`. Seed in `backend/src/prisma/seed.ts`.
   - `backend/src/main.ts` = helmet, CORS (`FRONTEND_URL`), global `ValidationPipe` (whitelist + forbidNonWhitelisted), Swagger.
   - `frontend/src/app/(public)/` = public pages; `(admin)/admin/*` = admin CMS; `auth/login` = login.
@@ -52,7 +65,6 @@ The code was generated in bulk and the frontend and backend are not fully wired 
   - Controllers take `@Body() body: any` (no DTOs), so validation is skipped and mass-assignment is possible.
   - `RolesGuard` is applied only to `users`. Any logged-in role can edit content and read donations.
   - `ThrottlerGuard` and `AllExceptionsFilter` are defined but not registered globally.
-  - JWT secret falls back to `'default_secret'`.
   - The Razorpay signature check uses `!==` instead of a timing-safe compare.
   - Upload has no MIME/extension allow-list, and its `folder` query parameter is not validated.
 - `prompt.md` lists API paths that don't exist. `README.md` says "3 languages" and "11 models". Trust the code over these docs.
@@ -80,7 +92,8 @@ The code was generated in bulk and the frontend and backend are not fully wired 
 - Page visibility: the `PageStatus` enum (`ACTIVE`/`DRAFT`/`DISABLED`/`SCHEDULED`). Public endpoints must return only active content.
 - Frontend: path alias `@/` → `frontend/src/`. Use `cn()` from `lib/utils` for class names. Client components need `"use client"`. Use Tailwind palette tokens (`saffron`, `rust`, `golden`, `teal`, `offwhite`), not raw hex. Fonts: Cinzel (headings), Playfair Display, Noto Sans (body), Poppins (nav/UI).
 - Media: upload through `POST /api/upload` to S3/MinIO bucket `svs-devastanam-media`. In Next.js, images from new hosts must be added to `images.remotePatterns` in `next.config.mjs`.
-- The CSP lives in `next.config.mjs` `headers()`. New third-party scripts or frames (e.g. Razorpay checkout, Google Maps) must be allowed there.
+- The CSP lives in `next.config.mjs` `headers()`. `connect-src`/`media-src` and the S3 image host are derived from `NEXT_PUBLIC_API_URL` / `NEXT_PUBLIC_S3_BUCKET_URL` at build time. New third-party scripts, frames or API hosts must be added there.
+- Frontend production Docker image copies `.next/standalone` but `next.config.mjs` has no `output: "standalone"` (pre-existing, Docker only; don't add it for Netlify without checking).
 
 ## Security (apply to every change, even when I don't mention it)
 Follow the OWASP Secure Coding Practices and OWASP Top 10.
