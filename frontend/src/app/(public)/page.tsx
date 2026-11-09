@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { getDeities, getTimings } from "@/lib/content";
 import { HeroBanner } from "@/components/home/HeroBanner";
 import { DeitiesPreview } from "@/components/home/DeitiesPreview";
 import { TempleTimingsSection } from "@/components/home/TempleTimingsSection";
@@ -14,7 +15,10 @@ export const metadata: Metadata = {
     "Welcome to Sri Venkata Sai Devasthanam, Yemmiganur. A sacred Hindu temple dedicated to Lord Sri Venkateshwara Swamy, Sai Baba, Lord Hanuman, and more. Experience divine grace, daily poojas, festivals, and annadanam.",
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const locale = await getLocale();
+  const [deities, timings] = await Promise.all([getDeities(locale), getTimings(locale)]);
+
   return (
     <>
       {/* Hero Section */}
@@ -54,10 +58,10 @@ export default function HomePage() {
       </section>
 
       {/* Deities Preview */}
-      <DeitiesPreview />
+      <DeitiesPreview deities={deities} />
 
       {/* Temple Timings */}
-      <TempleTimingsSection />
+      <TempleTimingsSection timings={timings} />
 
       {/* Gallery Preview */}
       <GalleryPreview />

@@ -4,13 +4,14 @@ import { motion } from "framer-motion";
 import { Clock, CalendarDays } from "lucide-react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { useTranslations } from "next-intl";
-import { TEMPLE_TIMINGS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import type { TempleTimingEntry } from "@/types";
 
-export function TempleTimingsSection() {
+// Data is loaded on the server by the home page (lib/content.ts) and passed in.
+export function TempleTimingsSection({ timings }: { timings: TempleTimingEntry[] }) {
   const t = useTranslations("timings");
 
-  const allDayTimings = TEMPLE_TIMINGS.filter(
+  const allDayTimings = timings.filter(
     (t) => t.dayType === "ALL" || t.dayType === "WEEKDAY"
   );
 

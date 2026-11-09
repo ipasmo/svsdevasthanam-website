@@ -1,4 +1,4 @@
-import type { LanguageOption, NavItem, Deity, Pooja, TempleTimingEntry } from "@/types";
+import type { LanguageOption, NavItem, Deity, Festival, Pooja, TempleTimingEntry } from "@/types";
 
 // ─── Site ─────────────────────────────────────────────────────────────────────
 export const SITE_NAME = "Sri Venkata Sai Devasthanam";
@@ -240,6 +240,120 @@ export const TEMPLE_TIMINGS: TempleTimingEntry[] = [
   { id: "10", activity: "Ekanta Seva (Closing Prayers)", time: "8:00 PM", dayType: "ALL", orderIndex: 10 },
   { id: "11", activity: "Temple Closes", time: "8:30 PM", dayType: "ALL", orderIndex: 11 },
   { id: "12", activity: "Extended Darshan", time: "4:00 - 10:00 PM", dayType: "WEEKEND", orderIndex: 12 },
+];
+
+// ─── Festivals ────────────────────────────────────────────────────────────────
+// Static fallback for the Festivals page (live data: GET /api/festivals).
+// Slugs match database/scripts/v1.5_website_content_data.sql.
+export const FESTIVALS: Festival[] = [
+  {
+    id: "1",
+    slug: "brahmotsavam",
+    name: "Brahmotsavam",
+    month: "March / April",
+    description: "The grandest annual festival of Sri Venkata Sai Devasthanam, celebrated over 9 days with special poojas, processions, cultural programs, and mass annadanam.",
+    icon: "🎺",
+    highlight: true,
+  },
+  {
+    id: "2",
+    slug: "rama-navami",
+    name: "Rama Navami",
+    month: "March / April",
+    description: "Birth anniversary of Lord Rama celebrated with special poojas, Ramayana parayanam, and cultural programs.",
+    icon: "🏹",
+    highlight: false,
+  },
+  {
+    id: "3",
+    slug: "hanuman-jayanti",
+    name: "Hanuman Jayanti",
+    month: "April",
+    description: "Birthday of Lord Hanuman celebrated with Sundara Kanda parayanam, special abhishekam, and devotional songs.",
+    icon: "🙏",
+    highlight: false,
+  },
+  {
+    id: "4",
+    slug: "sai-baba-aradhana",
+    name: "Sai Baba Aradhana",
+    month: "October",
+    description: "The divine mahanirvana day of Shirdi Sai Baba observed with special poojas, bhajans, and Sai Satcharitra parayanam.",
+    icon: "⭐",
+    highlight: true,
+  },
+  {
+    id: "5",
+    slug: "maha-shivaratri",
+    name: "Maha Shivaratri",
+    month: "February / March",
+    description: "The great night of Lord Shiva celebrated with all-night vigil, rudrabhishekam, and special poojas.",
+    icon: "🌙",
+    highlight: false,
+  },
+  {
+    id: "6",
+    slug: "guru-purnima",
+    name: "Guru Purnima",
+    month: "July",
+    description: "Day of gratitude to all gurus, observed with special poojas, discourses, and devotees seeking blessings.",
+    icon: "✨",
+    highlight: false,
+  },
+  {
+    id: "7",
+    slug: "ganesh-chaturthi",
+    name: "Ganesh Chaturthi",
+    month: "August / September",
+    description: "10-day celebration of Lord Ganesha with daily poojas, cultural programs, and grand immersion on the final day.",
+    icon: "🐘",
+    highlight: false,
+  },
+  {
+    id: "8",
+    slug: "navaratri",
+    name: "Navaratri",
+    month: "September / October",
+    description: "Nine auspicious nights dedicated to Goddess Durga, Lakshmi, and Saraswati with special daily poojas.",
+    icon: "🌺",
+    highlight: false,
+  },
+  {
+    id: "9",
+    slug: "deepavali",
+    name: "Deepavali",
+    month: "October / November",
+    description: "Festival of lights celebrated with special temple illumination, fireworks, and midnight lakshmi pooja.",
+    icon: "🪔",
+    highlight: false,
+  },
+  {
+    id: "10",
+    slug: "vaikunta-ekadashi",
+    name: "Vaikunta Ekadashi",
+    month: "December / January",
+    description: "Sacred ekadashi dedicated to Lord Vishnu with special midnight darshan and door of liberation open for devotees.",
+    icon: "🚪",
+    highlight: false,
+  },
+  {
+    id: "11",
+    slug: "ugadi",
+    name: "Ugadi",
+    month: "March / April",
+    description: "Telugu New Year celebrated with special poojas, panchangam reading, and community celebrations.",
+    icon: "🌟",
+    highlight: false,
+  },
+  {
+    id: "12",
+    slug: "karthika-masa",
+    name: "Karthika Masa",
+    month: "November",
+    description: "Holy month dedicated to Lord Shiva and Vishnu, with daily diya lighting, special poojas throughout the month.",
+    icon: "🕯️",
+    highlight: false,
+  },
 ];
 
 // ─── Gallery Categories ───────────────────────────────────────────────────────

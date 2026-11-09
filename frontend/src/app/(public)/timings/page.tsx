@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Clock, Sun, Sunrise, Sunset, Star } from "lucide-react";
-import { TEMPLE_TIMINGS } from "@/lib/constants";
+import { getTimings } from "@/lib/content";
 import { cn } from "@/lib/utils";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 export const metadata: Metadata = {
   title: "Temple Timings - Sri Venkata Sai Devasthanam",
@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 
 export default async function TimingsPage() {
   const t = await getTranslations("timings");
+  const timings = await getTimings(await getLocale());
   return (
     <div className="bg-offwhite">
       {/* Hero */}
@@ -48,7 +49,7 @@ export default async function TimingsPage() {
             <p className="text-white/60 text-sm font-noto mt-1">{t("allDaysLabel")}</p>
           </div>
           <div className="divide-y divide-amber-50">
-            {TEMPLE_TIMINGS.filter(t => t.dayType !== "WEEKEND").map((timing, index) => {
+            {timings.filter(t => t.dayType !== "WEEKEND").map((timing, index) => {
               const isBreak = timing.activity.toLowerCase().includes("closed");
               return (
                 <div
@@ -65,7 +66,7 @@ export default async function TimingsPage() {
                         "w-3 h-3 rounded-full shrink-0",
                         isBreak ? "bg-gray-200" :
                         index < 3 ? "bg-golden" :
-                        index >= TEMPLE_TIMINGS.length - 3 ? "bg-teal" :
+                        index >= timings.length - 3 ? "bg-teal" :
                         "bg-saffron"
                       )}
                     />

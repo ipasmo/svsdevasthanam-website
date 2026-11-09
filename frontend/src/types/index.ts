@@ -68,6 +68,17 @@ export interface Event {
   createdAt: string;
 }
 
+// Recurring annual festival (Festivals page). Month is approximate.
+export interface Festival {
+  id: string;
+  slug: string;
+  name: string;
+  month: string;
+  description: string;
+  icon: string;
+  highlight: boolean;
+}
+
 // ─── Gallery ─────────────────────────────────────────────────────────────────
 
 export interface GalleryCategory {

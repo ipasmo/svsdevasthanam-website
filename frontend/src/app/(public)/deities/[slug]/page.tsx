@@ -2,18 +2,21 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Star, Sparkles } from "lucide-react";
-import { DEITIES } from "@/lib/constants";
+import { getLocale } from "next-intl/server";
+import { getDeities } from "@/lib/content";
+import { DEFAULT_LOCALE } from "@/lib/constants";
 
 interface DeityPageProps {
   params: { slug: string };
 }
 
 export async function generateStaticParams() {
-  return DEITIES.map((deity) => ({ slug: deity.slug }));
+  return (await getDeities(DEFAULT_LOCALE)).map((deity) => ({ slug: deity.slug }));
 }
 
 export async function generateMetadata({ params }: DeityPageProps): Promise<Metadata> {
-  const deity = DEITIES.find((d) => d.slug === params.slug);
+  const deities = await getDeities(await getLocale());
+  const deity = deities.find((d) => d.slug === params.slug);
   if (!deity) return { title: "Deity Not Found" };
   return {
     title: `${deity.name} - Sri Venkata Sai Devasthanam`,
@@ -21,11 +24,12 @@ export async function generateMetadata({ params }: DeityPageProps): Promise<Meta
   };
 }
 
-export default function DeityPage({ params }: DeityPageProps) {
-  const deity = DEITIES.find((d) => d.slug === params.slug);
+export default async function DeityPage({ params }: DeityPageProps) {
+  const deities = await getDeities(await getLocale());
+  const deity = deities.find((d) => d.slug === params.slug);
   if (!deity) notFound();
 
-  const otherDeities = DEITIES.filter((d) => d.slug !== params.slug).slice(0, 3);
+  const otherDeities = deities.filter((d) => d.slug !== params.slug).slice(0, 3);
 
   return (
     <div className="bg-offwhite">
