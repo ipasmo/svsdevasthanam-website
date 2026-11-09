@@ -11,8 +11,10 @@
 --   Part 0  Safety guard: stops if the schema already exists.
 --   Part 1  Schema: identical to Prisma migration 20260307163420_init
 --           (backend/prisma/migrations/20260307163420_init/migration.sql).
---   Part 2  Prisma migration history: records 20260307163420_init as applied,
---           so `prisma migrate status/deploy` stays in sync later.
+--   Part 2  Script history: creates "_prisma_migrations" and records this script
+--           as a "manual" row. The Prisma migration 20260307163420_init is NOT
+--           recorded, so this database is managed by manual scripts only: never
+--           run `prisma migrate deploy` against it.
 --
 -- No data and no secrets in this file.
 -- Source of truth stays schema.prisma + backend/prisma/migrations. If the schema
@@ -285,9 +287,8 @@ ALTER TABLE "PageTranslation" ADD CONSTRAINT "PageTranslation_pageId_fkey" FOREI
 -- AddForeignKey
 ALTER TABLE "GalleryImage" ADD CONSTRAINT "GalleryImage_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "GalleryCategory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
--- ─── Part 2: Prisma migration history ────────────────────────────────────────
--- Same table Prisma creates itself. The checksum is the SHA-256 of
--- backend/prisma/migrations/20260307163420_init/migration.sql (LF line endings).
+-- ─── Part 2: Script history ──────────────────────────────────────────────────
+-- Same table layout Prisma uses, reused as the log of manual scripts.
 CREATE TABLE "_prisma_migrations" (
     "id"                    VARCHAR(36) PRIMARY KEY NOT NULL,
     "checksum"              VARCHAR(64) NOT NULL,
@@ -299,12 +300,16 @@ CREATE TABLE "_prisma_migrations" (
     "applied_steps_count"   INTEGER NOT NULL DEFAULT 0
 );
 
-INSERT INTO "_prisma_migrations" ("id", "checksum", "finished_at", "migration_name", "started_at", "applied_steps_count")
-VALUES (gen_random_uuid()::text, '2fbe226aaa5126aad1eb69754a5e5db608a9a7458d309acee2e966e4f987f940',
-        now(), '20260307163420_init', now(), 1);
+-- Record this manual script. Databases built from these scripts are managed by
+-- manual SQL scripts only: never run `prisma migrate deploy` against them
+-- (Prisma would try to re-create the tables from 20260307163420_init and fail).
+INSERT INTO "_prisma_migrations" ("id", "checksum", "finished_at", "migration_name", "logs", "started_at", "applied_steps_count")
+VALUES (gen_random_uuid()::text, 'manual', now(), 'v1.0_initial_db_setup.sql',
+        'manual: database/scripts/v1.0_initial_db_setup.sql', now(), 1);
 
 COMMIT;
 
 -- ─── Verify (optional, run after COMMIT) ─────────────────────────────────────
 -- SELECT count(*) AS tables FROM pg_tables WHERE schemaname = 'public';      -- expected: 13
--- SELECT migration_name, finished_at FROM "_prisma_migrations";              -- expected: 20260307163420_init
+-- SELECT migration_name, logs, finished_at FROM "_prisma_migrations" ORDER BY started_at;
+--   expected: v1.0_initial_db_setup.sql (manual)

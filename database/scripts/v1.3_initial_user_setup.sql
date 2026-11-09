@@ -15,6 +15,7 @@
 --   Part 0  Guards: v1.0 must have been run; none of these users may exist yet.
 --   Part 1  pgcrypto extension (bcrypt hashing inside Postgres).
 --   Part 2  Creates SUPER_ADMIN, CONTENT_EDITOR and FINANCE_ADMIN users.
+--   Part 3  Records this script in "_prisma_migrations" as a "manual" row.
 -- =============================================================================
 
 BEGIN;
@@ -56,6 +57,12 @@ BEGIN
     (gen_random_uuid()::text, 'Content Editor', 'editor@srivenkatasai.org',  crypt(v_password, gen_salt('bf', 10)), 'CONTENT_EDITOR', true, CURRENT_TIMESTAMP),
     (gen_random_uuid()::text, 'Finance Admin',  'finance@srivenkatasai.org', crypt(v_password, gen_salt('bf', 10)), 'FINANCE_ADMIN',  true, CURRENT_TIMESTAMP);
 END $$;
+
+-- ─── Part 3: Record this manual script ───────────────────────────────────────
+-- Audit trail only (no user data or passwords); Prisma ignores this row.
+INSERT INTO "_prisma_migrations" ("id", "checksum", "finished_at", "migration_name", "logs", "started_at", "applied_steps_count")
+VALUES (gen_random_uuid()::text, 'manual', now(), 'v1.3_initial_user_setup.sql',
+        'manual: database/scripts/v1.3_initial_user_setup.sql', now(), 1);
 
 COMMIT;
 

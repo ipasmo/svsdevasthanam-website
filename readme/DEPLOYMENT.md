@@ -50,47 +50,41 @@ Why two URLs:
 - The app talks to Neon through its connection pooler (PgBouncer, transaction mode), which handles many short connections cheaply.
 - Prisma **migrations** need a direct connection. `schema.prisma` therefore has `directUrl = env("DIRECT_URL")`. Locally both URLs point at Docker Postgres.
 
-### 1.2 Apply the schema (manual)
-Migrations are **not** run by Render. You apply them yourself, before deploying backend code that needs them. Pick one method and stick with it.
+### 1.2 Apply the schema and data (manual SQL scripts only)
+Render does **not** run migrations. Neon databases are built and changed **only** through the versioned SQL scripts in `database/scripts/`, run in the Neon SQL Editor while connected as the database **owner**.
 
-**Method A: Prisma CLI from your PC (recommended).** It records each migration in the `_prisma_migrations` table, so Prisma always knows what has been applied.
-
-```bash
-cd backend
-# PowerShell: $env:DATABASE_URL="..."; $env:DIRECT_URL="..."
-# Git Bash:
-export DATABASE_URL="<neon pooled url>"
-export DIRECT_URL="<neon direct url>"
-
-npm run prisma:status    # what is pending?
-npm run prisma:deploy    # = prisma migrate deploy (applies pending migrations only)
-```
-
-**Method B: SQL scripts in the Neon SQL Editor.**
-For a new, empty database, run these scripts from `database/scripts/` in order, connected as the database **owner**:
+For a new, empty database, run them in this order:
 
 | Order | Script | What it does |
 |---|---|---|
-| 1 | `v1.0_initial_db_setup.sql` | Tables, indexes and keys, and records Prisma migration `20260307163420_init` as applied |
+| 1 | `v1.0_initial_db_setup.sql` | Tables, indexes and keys |
 | 2 | `v1.1_initial_data_setup.sql` | Website content: pages, deities, timings, poojas, announcements, gallery categories, events |
 | 3 | `v1.3_initial_user_setup.sql` | The 3 admin users (**sensitive**) |
 
 How they behave:
 - Each script runs in one transaction, checks that the previous step was done, and refuses to run twice.
+- Each one records itself in `"_prisma_migrations"` as a `manual` row. See what has been applied with: `SELECT migration_name, logs, finished_at FROM "_prisma_migrations" ORDER BY started_at;`
 - For `v1.3`, replace `CHANGE_ME` in the SQL Editor only. Never commit a real password.
-- With these scripts you can skip step 1.3 (seeding).
 
-For later schema changes, run the matching `vX.Y_*.sql` script. If a script doesn't insert its own `_prisma_migrations` row, tell Prisma it was applied:
+**Don't use Prisma migration commands against Neon.** The Prisma migration `20260307163420_init` is deliberately not recorded in the database, so:
+- `prisma migrate status` reports it as not yet applied. This is expected.
+- `prisma migrate deploy` would try to create the tables again, fail, and leave a failed-migration record that blocks later deploys. Never run it against Neon.
+- `prisma migrate dev`, `prisma migrate reset` and `prisma db push` can drop data. Never run them against Neon either.
+
+Prisma migrations are still used **locally**: `npm run prisma:migrate -- --name <change>` generates the SQL. For every new Prisma migration, also add a new versioned script here (the next version number) with the same SQL and its own `manual` row.
+
+**Check that Neon matches the code** (read-only; it compares the database with `schema.prisma` and changes nothing):
 
 ```bash
-npx prisma migrate resolve --applied <timestamp>_<name>
+cd backend
+# set DATABASE_URL and DIRECT_URL to the Neon URLs first
+npx prisma migrate diff --from-url "$DIRECT_URL" --to-schema-datamodel prisma/schema.prisma --exit-code
+# exit code 0 = identical, 2 = differences (printed as SQL)
 ```
 
-Otherwise Prisma will try to re-apply the migration later and fail.
+### 1.3 Seed initial data (not needed for Neon)
+Skip this step for Neon: `v1.1` and `v1.3` already load the same data. Running both would duplicate rows. The npm seed is meant for local development. Reference only:
 
-Never run `prisma migrate dev`, `prisma migrate reset` or `prisma db push` against Neon. They can drop data. Create new migrations locally with `npm run prisma:migrate -- --name <change>`, commit them, then apply them to Neon with Method A or B.
-
-### 1.3 Seed initial data (once)
 The seed creates three admin users. Against Neon it **requires** `SEED_ADMIN_PASSWORD` (at least 12 characters). The well-known local password `Admin@123` is refused in production.
 
 ```bash
@@ -124,7 +118,8 @@ Apply the schema (1.2) first. Use the **direct** URL for `psql`. Delete `svs_dat
 - **Connections:** the pooled URL protects you from running out of connections. Keep one Render instance per database until you know your load.
 
 ### 1.7 Rollback
-- **Migration failed half-way:** restore from the branch you created before migrating (Neon → Branches → Restore). Or fix the SQL and mark the migration with `prisma migrate resolve --rolled-back <name>`.
+- **A script failed:** nothing to undo. Each script runs in one transaction, so a failure rolls all of its changes back. Fix the cause and run it again.
+- **A script succeeded but the result is wrong:** restore from the branch you created before running it (Neon → Branches → Restore), or write a new versioned script that corrects it.
 - **Whole switch failed:** point Render's `DATABASE_URL`/`DIRECT_URL` back to the previous database and redeploy. Nothing in the code depends on Neon specifically.
 
 ---

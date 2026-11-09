@@ -13,6 +13,7 @@
 --   Part 1  Inserts: pages (+ English translations), deities, temple timings,
 --           poojas, announcements, gallery categories, events.
 --   Part 2  Updates / deletes: none in this version.
+--   Part 3  Records this script in "_prisma_migrations" as a "manual" row.
 --
 -- No secrets in this file. Later content changes go in a new versioned script.
 -- =============================================================================
@@ -30,8 +31,8 @@ BEGIN
   IF to_regclass('public."_prisma_migrations"') IS NULL THEN
     RAISE EXCEPTION 'Schema not found. Run v1.0_initial_db_setup.sql first.';
   END IF;
-  IF NOT EXISTS (SELECT 1 FROM "_prisma_migrations" WHERE migration_name = '20260307163420_init') THEN
-    RAISE EXCEPTION 'Migration 20260307163420_init not recorded. Run v1.0_initial_db_setup.sql first.';
+  IF NOT EXISTS (SELECT 1 FROM "_prisma_migrations" WHERE migration_name = 'v1.0_initial_db_setup.sql') THEN
+    RAISE EXCEPTION 'v1.0_initial_db_setup.sql is not recorded. Run v1.0_initial_db_setup.sql first.';
   END IF;
 
   FOREACH v_table IN ARRAY ARRAY['Page', 'PageTranslation', 'Deity', 'TempleTiming', 'Pooja',
@@ -148,6 +149,12 @@ VALUES
 
 -- ─── Part 2: Updates / deletes ───────────────────────────────────────────────
 -- None in v1.1.
+
+-- ─── Part 3: Record this manual script ───────────────────────────────────────
+-- Audit trail only; Prisma ignores rows with no matching folder in prisma/migrations.
+INSERT INTO "_prisma_migrations" ("id", "checksum", "finished_at", "migration_name", "logs", "started_at", "applied_steps_count")
+VALUES (gen_random_uuid()::text, 'manual', now(), 'v1.1_initial_data_setup.sql',
+        'manual: database/scripts/v1.1_initial_data_setup.sql', now(), 1);
 
 COMMIT;
 
